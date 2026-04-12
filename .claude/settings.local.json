@@ -2,7 +2,16 @@
   "permissions": {
     "allow": [
       "Bash(flutter pub:*)",
-      "Bash(flutter analyze:*)"
+      "Bash(flutter analyze:*)",
+      "Bash(magick --version)",
+      "Bash(inkscape --version)",
+      "Bash(npm init:*)",
+      "Bash(npm install:*)",
+      "Bash(node /c/Users/user/icon_gen/convert.js)",
+      "Bash(dart run:*)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\user"
     ]
   }
 }
