@@ -13,6 +13,7 @@ dependencies:
   flutter_svg: ^2.0.10+1
   flutter_screenutil: ^5.9.3
   gap: ^3.0.1
+  shared_preferences: ^2.3.2
 
 dev_dependencies:
   flutter_test:
@@ -21,13 +22,18 @@ dev_dependencies:
   flutter_launcher_icons: ^0.14.3
 
 flutter_launcher_icons:
-  android: "ic_launcher"       # overwrites android/app/src/main/res/mipmap-*/ic_launcher.png
-  ios: true                    # overwrites ios/Runner/Assets.xcassets/AppIcon.appiconset/
-  image_path: "assets/images/app_icon.png"          # white-bg PNG for iOS + non-adaptive Android
-  min_sdk_android: 21          # enables adaptive icon support (API 26+)
-  adaptive_icon_background: "#FFFFFF"               # white background layer
-  adaptive_icon_foreground: "assets/images/app_icon_fg.png"  # transparent-bg PNG for foreground layer
-  remove_alpha_ios: true       # iOS rejects icons with transparency; flatten to white
+  android: "ic_launcher"
+  ios: true
+  min_sdk_android: 21
+
+  # افصل الصور لكل منصة
+  image_path_android: "assets/images/logo10.png"
+  image_path_ios: "assets/images/logo10.png"
+
+  # Android adaptive icon
+  adaptive_icon_foreground: "assets/images/logo10.png"
+  adaptive_icon_background: "#0B446B"
+  remove_alpha_ios: true
 
 flutter:
   uses-material-design: true
@@ -36,3 +42,5 @@ flutter:
     - assets/images/Frame.svg
     - assets/images/Frame2.svg
     - assets/images/Group.svg
+    - assets/images/1.png
+    - assets/images/2.png

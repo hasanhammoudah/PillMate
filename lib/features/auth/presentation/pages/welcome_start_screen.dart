@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../../../../app/router/app_router.dart';
 import '../../../../app/theme/app_assets.dart';
 import '../../../../core/widgets/app_logo.dart';
 import '../../../../core/widgets/background_decoration.dart';
@@ -21,7 +22,7 @@ class WelcomeStartScreen extends StatelessWidget {
               const Spacer(),
               CurvedStartButton(
                 onPressed: () {
-                  // TODO: navigate to main app home screen
+                  Navigator.pushReplacementNamed(context, AppRoutes.home);
                 },
               ),
               const Spacer(),

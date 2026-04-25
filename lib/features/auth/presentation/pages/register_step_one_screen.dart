@@ -37,7 +37,12 @@ class _RegisterStepOneScreenState extends State<RegisterStepOneScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Keyboard height — 0 when closed, >0 when open.
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+
     return Scaffold(
+      // Keep scaffold full-height; we handle keyboard inset via scroll padding.
+      resizeToAvoidBottomInset: false,
       body: BackgroundDecoration(
         child: SafeArea(
           child: Padding(
@@ -52,54 +57,80 @@ class _RegisterStepOneScreenState extends State<RegisterStepOneScreen> {
                   onArrowTap: () => Navigator.pop(context),
                 ),
                 SizedBox(height: 20.h),
+                // Stack lets the illustration sit fixed at the bottom while
+                // the form scrolls independently above it.
                 Expanded(
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        // start = physical RIGHT in RTL → labels on right ✓
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          AppTextField(label: 'الاسم بالكامل'),
-                          SizedBox(height: 14.h),
-                          // In RTL Row, first child renders on the physical RIGHT.
-                          // العمر (age) on right, الجنس (gender) on left.
-                          Row(
+                  child: Stack(
+                    children: [
+                      // ── Scrollable form ────────────────────────────
+                      SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        // When keyboard open: pad by keyboard height so the
+                        // button stays reachable above the keyboard.
+                        // When closed: pad by illustration height + buffer.
+                        padding: EdgeInsets.only(
+                          bottom: keyboardHeight > 0
+                              ? keyboardHeight + 16.h
+                              : 118.h,
+                        ),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            // start = physical RIGHT in RTL → labels on right ✓
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: _AgeField(controller: _ageController),
+                              AppTextField(label: 'الاسم بالكامل'),
+                              SizedBox(height: 14.h),
+                              // In RTL Row, first child renders on the physical RIGHT.
+                              // العمر (age) on right, الجنس (gender) on left.
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: _AgeField(controller: _ageController),
+                                  ),
+                                  SizedBox(width: 14.w),
+                                  Expanded(
+                                    child: _GenderDropdown(
+                                      value: _selectedGender,
+                                      onChanged: (v) =>
+                                          setState(() => _selectedGender = v),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              SizedBox(width: 14.w),
-                              Expanded(
-                                child: _GenderDropdown(
-                                  value: _selectedGender,
-                                  onChanged: (v) =>
-                                      setState(() => _selectedGender = v),
-                                ),
+                              SizedBox(height: 14.h),
+                              AppTextField(
+                                label: 'رقم الهاتف',
+                                keyboardType: TextInputType.phone,
                               ),
+                              SizedBox(height: 14.h),
+                              AppTextField(label: 'العنوان'),
+                              SizedBox(height: 28.h),
+                              AppPrimaryButton(
+                                label: 'التالي',
+                                onPressed: _onNext,
+                              ),
+                              SizedBox(height: 8.h),
                             ],
                           ),
-                          SizedBox(height: 14.h),
-                          AppTextField(
-                            label: 'رقم الهاتف',
-                            keyboardType: TextInputType.phone,
-                          ),
-                          SizedBox(height: 14.h),
-                          AppTextField(label: 'العنوان'),
-                          SizedBox(height: 28.h),
-                          AppPrimaryButton(
-                            label: 'التالي',
-                            onPressed: _onNext,
-                          ),
-                          SizedBox(height: 8.h),
-                        ],
+                        ),
                       ),
-                    ),
+
+                      // ── Fixed illustration ─────────────────────────
+                      // Pinned to the bottom of the Expanded area — does NOT
+                      // move when the keyboard opens.
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: IgnorePointer(
+                          child: const RegisterIllustration(),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const RegisterIllustration(),
               ],
             ),
           ),
@@ -196,10 +227,6 @@ class _AgeField extends StatelessWidget {
   String? _validate(String? value) {
     if (value == null || value.trim().isEmpty) {
       return 'يرجى إدخال العمر';
-    }
-    final age = int.tryParse(value.trim());
-    if (age == null || age < 60) {
-      return 'يجب أن يكون العمر 60 سنة أو أكثر';
     }
     return null;
   }
