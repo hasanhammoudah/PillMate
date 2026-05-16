@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../app/theme/app_assets.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../data/services/medication_local_service.dart';
 import '../../domain/models/medication_model.dart';
 import '../widgets/medication_card.dart';
@@ -56,31 +57,25 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: AppColors.cardBg,
-        resizeToAvoidBottomInset: false,
-        body: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // ── Header ──────────────────────────────────────────────
-              _Header(onAdd: _navigateToAdd),
-
-              // ── Body ─────────────────────────────────────────────────
-              Expanded(
-                child: !_loaded
-                    ? const Center(child: CircularProgressIndicator())
-                    : _medications.isEmpty
-                        ? _EmptyBody(onAddFirst: _navigateToAdd)
-                        : _FilledList(
-                            medications: _medications,
-                            onDelete: _deleteMedication,
-                          ),
-              ),
-            ],
-          ),
+    return Scaffold(
+      backgroundColor: AppColors.cardBg,
+      resizeToAvoidBottomInset: false,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _Header(onAdd: _navigateToAdd),
+            Expanded(
+              child: !_loaded
+                  ? const Center(child: CircularProgressIndicator())
+                  : _medications.isEmpty
+                      ? _EmptyBody(onAddFirst: _navigateToAdd)
+                      : _FilledList(
+                          medications: _medications,
+                          onDelete: _deleteMedication,
+                        ),
+            ),
+          ],
         ),
       ),
     );
@@ -119,7 +114,9 @@ class _Header extends StatelessWidget {
                     ],
                   ),
                   child: Icon(
-                    Icons.arrow_forward_ios,
+                    context.isArabic
+                        ? Icons.arrow_forward_ios
+                        : Icons.arrow_back_ios_new,
                     color: AppColors.white,
                     size: 18.sp,
                   ),
@@ -127,7 +124,7 @@ class _Header extends StatelessWidget {
               ),
               Expanded(
                 child: Text(
-                  'قائمة ادويتي',
+                  context.tr('medicationList'),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 22.sp,
@@ -139,14 +136,13 @@ class _Header extends StatelessWidget {
               SvgPicture.asset(AppAssets.logo, width: 52.w),
             ],
           ),
-
           SizedBox(height: 14.h),
-
           Center(
             child: GestureDetector(
               onTap: onAdd,
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 22.w, vertical: 9.h),
+                padding:
+                    EdgeInsets.symmetric(horizontal: 22.w, vertical: 9.h),
                 decoration: BoxDecoration(
                   color: AppColors.green,
                   borderRadius: BorderRadius.circular(22.r),
@@ -159,7 +155,7 @@ class _Header extends StatelessWidget {
                   ],
                 ),
                 child: Text(
-                  '+ اضافة دواء',
+                  context.tr('addMedication'),
                   style: TextStyle(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w700,
@@ -169,7 +165,6 @@ class _Header extends StatelessWidget {
               ),
             ),
           ),
-
           SizedBox(height: 8.h),
         ],
       ),
@@ -190,7 +185,7 @@ class _EmptyBody extends StatelessWidget {
       children: [
         SizedBox(height: 15.h),
         Text(
-          'لا توجد ادوية مضافة بعد ',
+          context.tr('noMedications'),
           style: TextStyle(
             fontSize: 18.sp,
             fontWeight: FontWeight.w600,
@@ -202,7 +197,8 @@ class _EmptyBody extends StatelessWidget {
           child: GestureDetector(
             onTap: onAddFirst,
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 26.w, vertical: 12.h),
+              padding:
+                  EdgeInsets.symmetric(horizontal: 26.w, vertical: 12.h),
               decoration: BoxDecoration(
                 color: AppColors.accentCyan,
                 borderRadius: BorderRadius.circular(22.r),
@@ -215,7 +211,7 @@ class _EmptyBody extends StatelessWidget {
                 ],
               ),
               child: Text(
-                '+ اضافة اول دواء',
+                context.tr('addFirstMedication'),
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w700,

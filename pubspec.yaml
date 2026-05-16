@@ -9,11 +9,16 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.20.2
   cupertino_icons: ^1.0.8
   flutter_svg: ^2.0.10+1
   flutter_screenutil: ^5.9.3
   gap: ^3.0.1
   shared_preferences: ^2.3.2
+  audioplayers: ^6.0.0
+  vibration: ^2.0.0
 
 dev_dependencies:
   flutter_test:
@@ -44,3 +49,7 @@ flutter:
     - assets/images/Group.svg
     - assets/images/1.png
     - assets/images/2.png
+    - assets/images/emergency.png
+    - assets/images/Untitled-3-01.png
+    - assets/audio/
+    - assets/translations/

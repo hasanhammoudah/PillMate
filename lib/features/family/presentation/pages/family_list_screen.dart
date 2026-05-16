@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../app/theme/app_assets.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/widgets/app_screen_header.dart';
 import '../../data/services/family_local_service.dart';
 import '../../domain/models/family_member_model.dart';
@@ -55,32 +56,29 @@ class _FamilyListScreenState extends State<FamilyListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: AppColors.cardBg,
-        body: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              AppScreenHeader(
-                title: 'قائمة عائلتي',
-                addLabel: '+ اضافة فرد',
-                onAdd: _navigateToAdd,
-              ),
+    return Scaffold(
+      backgroundColor: AppColors.cardBg,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            AppScreenHeader(
+              title: context.tr('familyList'),
+              addLabel: context.tr('addMember'),
+              onAdd: _navigateToAdd,
+            ),
 
-              Expanded(
-                child: !_loaded
-                    ? const Center(child: CircularProgressIndicator())
-                    : _members.isEmpty
-                        ? _EmptyBody(onAddFirst: _navigateToAdd)
-                        : _FilledList(
-                            members: _members,
-                            onDelete: _deleteMember,
-                          ),
-              ),
-            ],
-          ),
+            Expanded(
+              child: !_loaded
+                  ? const Center(child: CircularProgressIndicator())
+                  : _members.isEmpty
+                      ? _EmptyBody(onAddFirst: _navigateToAdd)
+                      : _FilledList(
+                          members: _members,
+                          onDelete: _deleteMember,
+                        ),
+            ),
+          ],
         ),
       ),
     );
@@ -102,7 +100,7 @@ class _EmptyBody extends StatelessWidget {
         children: [
           SizedBox(height: 22.h),
           Text(
-            'سيتم تنبيه عائلتك عندما لا تشرب الدواء في موعده',
+            context.tr('familyNotification'),
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14.sp,
@@ -112,7 +110,7 @@ class _EmptyBody extends StatelessWidget {
           ),
           SizedBox(height: 16.h),
           Text(
-            'لم تقم بإضافة أي فرد من العائلة بعد',
+            context.tr('noFamilyMembers'),
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 18.sp,
@@ -139,7 +137,7 @@ class _EmptyBody extends StatelessWidget {
                   ],
                 ),
                 child: Text(
-                  '+ اضافة اول فرد',
+                  context.tr('addFirstMember'),
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w700,
@@ -220,7 +218,6 @@ class FamilyCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // ── Top row: name (right) + delete (left) ──────────────
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
             child: Row(
@@ -249,7 +246,6 @@ class FamilyCard extends StatelessWidget {
 
           _divider(),
 
-          // ── Phone ───────────────────────────────────────────────
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
             child: _InfoBox(text: member.phone),
@@ -257,7 +253,6 @@ class FamilyCard extends StatelessWidget {
 
           _divider(),
 
-          // ── Relationship ─────────────────────────────────────────
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
             child: _InfoBox(text: member.relationship),
@@ -296,7 +291,7 @@ class _InfoBox extends StatelessWidget {
       ),
       child: Text(
         text,
-        textAlign: TextAlign.right,
+        textAlign: context.isArabic ? TextAlign.right : TextAlign.left,
         style: TextStyle(
           fontSize: 14.sp,
           fontWeight: FontWeight.w600,

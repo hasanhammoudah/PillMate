@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../app/theme/app_assets.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/widgets/app_screen_header.dart';
 import '../../../../core/widgets/rounded_input_field.dart';
 import '../../domain/models/family_member_model.dart';
-
-// ── Screen 4 & 6: Family Form / Add Member ────────────────────────────────────
-// Three pill-shaped input fields. Returns a FamilyMember on save.
 
 class FamilyFormScreen extends StatefulWidget {
   const FamilyFormScreen({super.key});
@@ -33,10 +31,10 @@ class _FamilyFormScreenState extends State<FamilyFormScreen> {
     if (_nameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text(
-            'يرجى إدخال اسم الفرد',
-            textAlign: TextAlign.right,
-            textDirection: TextDirection.rtl,
+          content: Text(
+            context.tr('pleaseEnterMemberName'),
+            textAlign: context.isArabic ? TextAlign.right : TextAlign.left,
+            textDirection: context.appTextDirection,
           ),
           backgroundColor: AppColors.red,
           behavior: SnackBarBehavior.floating,
@@ -64,99 +62,91 @@ class _FamilyFormScreenState extends State<FamilyFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: AppColors.cardBg,
-        resizeToAvoidBottomInset: false,
-        body: SafeArea(
-          child: Stack(
-            children: [
-              // ── Main content ──────────────────────────────────────────────
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  AppScreenHeader(
-                    title: 'قائمة عائلتي',
-                    addLabel: '+ اضافة فرد',
-                    onAdd: _save,
-                  ),
+    return Scaffold(
+      backgroundColor: AppColors.cardBg,
+      resizeToAvoidBottomInset: false,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                AppScreenHeader(
+                  title: context.tr('familyList'),
+                  addLabel: context.tr('addMember'),
+                  onAdd: _save,
+                ),
 
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 20.w, vertical: 20.h),
-                      child: Column(
-                        children: [
-                          // اسم الفرد
-                          RoundedInputField(
-                            controller: _nameController,
-                            hint: 'اسم الفرد',
-                          ),
-                          SizedBox(height: 20.h),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 20.w, vertical: 20.h),
+                    child: Column(
+                      children: [
+                        RoundedInputField(
+                          controller: _nameController,
+                          hint: context.tr('memberName'),
+                        ),
+                        SizedBox(height: 20.h),
 
-                          // رقم الهاتف
-                          RoundedInputField(
-                            controller: _phoneController,
-                            hint: 'رقم الهاتف',
-                            keyboardType: TextInputType.phone,
-                          ),
-                          SizedBox(height: 20.h),
+                        RoundedInputField(
+                          controller: _phoneController,
+                          hint: context.tr('phoneNumber'),
+                          keyboardType: TextInputType.phone,
+                        ),
+                        SizedBox(height: 20.h),
 
-                          // صلة القرابة
-                          RoundedInputField(
-                            controller: _relationshipController,
-                            hint: 'صلة القرابة',
-                          ),
-                          SizedBox(height: 36.h),
+                        RoundedInputField(
+                          controller: _relationshipController,
+                          hint: context.tr('relationship'),
+                        ),
+                        SizedBox(height: 36.h),
 
-                          // حفظ button
-                          SizedBox(
-                            width: double.infinity,
-                            height: 56.h,
-                            child: ElevatedButton(
-                              onPressed: _save,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primaryDark,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(28.r),
-                                ),
-                                elevation: 3,
-                                shadowColor: AppColors.primaryDark
-                                    .withValues(alpha: 0.35),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 56.h,
+                          child: ElevatedButton(
+                            onPressed: _save,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primaryDark,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(28.r),
                               ),
-                              child: Text(
-                                'حفظ',
-                                style: TextStyle(
-                                  fontSize: 18.sp,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.white,
-                                ),
+                              elevation: 3,
+                              shadowColor: AppColors.primaryDark
+                                  .withValues(alpha: 0.35),
+                            ),
+                            child: Text(
+                              context.tr('save'),
+                              style: TextStyle(
+                                fontSize: 18.sp,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.white,
                               ),
                             ),
                           ),
-                          SizedBox(height: 24.h),
-                        ],
-                      ),
+                        ),
+                        SizedBox(height: 24.h),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
+            ),
 
-              // ── Elderly woman illustration (fixed, bottom-right) ──────────
-              Positioned(
-                right: 0,
-                bottom: 0,
-                child: IgnorePointer(
-                  child: Image.asset(
-                    AppAssets.elderlyWoman,
-                    height: 155.h,
-                    fit: BoxFit.contain,
-                  ),
+            Positioned(
+              right: context.isArabic ? 0 : null,
+              left: context.isArabic ? null : 0,
+              bottom: 0,
+              child: IgnorePointer(
+                child: Image.asset(
+                  AppAssets.elderlyWoman,
+                  height: 155.h,
+                  fit: BoxFit.contain,
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -3,14 +3,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../app/theme/app_assets.dart';
 import '../../app/theme/app_colors.dart';
+import '../localization/app_localizations.dart';
 
 /// Reusable top header shared across all secondary screens.
-///
-/// RTL visual layout:
-///   [cyan back-arrow button → RIGHT]  [title CENTER]  [logo LEFT]
-///   [optional green add-button CENTERED below]
-///
-/// Must be placed inside a parent with Directionality(rtl).
+/// Direction-aware: back arrow flips for LTR layouts.
 class AppScreenHeader extends StatelessWidget {
   final String? title;
   final String? addLabel;
@@ -25,13 +21,14 @@ class AppScreenHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isArabic = context.isArabic;
+
     return Padding(
       padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 0),
       child: Column(
         children: [
           Row(
             children: [
-              // RTL first child → visually RIGHT: cyan back button (→)
               GestureDetector(
                 onTap: () => Navigator.pop(context),
                 child: Container(
@@ -49,14 +46,15 @@ class AppScreenHeader extends StatelessWidget {
                     ],
                   ),
                   child: Icon(
-                    Icons.arrow_forward_ios,
+                    isArabic
+                        ? Icons.arrow_forward_ios
+                        : Icons.arrow_back_ios_new,
                     color: AppColors.white,
                     size: 18.sp,
                   ),
                 ),
               ),
 
-              // CENTER: title or spacer
               if (title != null)
                 Expanded(
                   child: Text(
@@ -72,7 +70,6 @@ class AppScreenHeader extends StatelessWidget {
               else
                 const Spacer(),
 
-              // RTL last child → visually LEFT: PillMate logo
               SvgPicture.asset(AppAssets.logo, width: 52.w),
             ],
           ),

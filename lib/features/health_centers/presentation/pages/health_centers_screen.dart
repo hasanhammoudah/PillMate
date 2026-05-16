@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../app/theme/app_assets.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/widgets/app_screen_header.dart';
 import '../../data/services/health_center_local_service.dart';
 import '../../domain/models/health_center_model.dart';
@@ -56,32 +57,29 @@ class _HealthCentersScreenState extends State<HealthCentersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: AppColors.cardBg,
-        body: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              AppScreenHeader(
-                title: 'قائمة المراكز الصحية',
-                addLabel: '+ اضافة مركز',
-                onAdd: _navigateToAdd,
-              ),
+    return Scaffold(
+      backgroundColor: AppColors.cardBg,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            AppScreenHeader(
+              title: context.tr('healthCentersList'),
+              addLabel: context.tr('addCenter'),
+              onAdd: _navigateToAdd,
+            ),
 
-              Expanded(
-                child: !_loaded
-                    ? const Center(child: CircularProgressIndicator())
-                    : _centers.isEmpty
-                        ? _EmptyBody(onAddFirst: _navigateToAdd)
-                        : _FilledList(
-                            centers: _centers,
-                            onDelete: _deleteCenter,
-                          ),
-              ),
-            ],
-          ),
+            Expanded(
+              child: !_loaded
+                  ? const Center(child: CircularProgressIndicator())
+                  : _centers.isEmpty
+                      ? _EmptyBody(onAddFirst: _navigateToAdd)
+                      : _FilledList(
+                          centers: _centers,
+                          onDelete: _deleteCenter,
+                        ),
+            ),
+          ],
         ),
       ),
     );
@@ -103,7 +101,7 @@ class _EmptyBody extends StatelessWidget {
         children: [
           SizedBox(height: 22.h),
           Text(
-            'لم تقم بإضافة أي مركز صحي بعد',
+            context.tr('noHealthCenters'),
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 18.sp,
@@ -130,7 +128,7 @@ class _EmptyBody extends StatelessWidget {
                   ],
                 ),
                 child: Text(
-                  '+ اضافة اول مركز',
+                  context.tr('addFirstCenter'),
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w700,

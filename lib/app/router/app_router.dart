@@ -10,9 +10,11 @@ import '../../features/home/presentation/pages/home_screen.dart';
 import '../../features/medications/presentation/pages/medication_list_screen.dart';
 import '../../features/medications/presentation/pages/add_medication_screen.dart';
 import '../../features/medications/presentation/pages/daily_check_screen.dart';
+import '../../features/medications/presentation/pages/medication_reminder_screen.dart';
 import '../../features/family/presentation/pages/family_list_screen.dart';
 import '../../features/family/presentation/pages/family_form_screen.dart';
 import '../../features/health_centers/presentation/pages/health_centers_screen.dart';
+import '../../features/settings/presentation/pages/settings_screen.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -26,9 +28,11 @@ class AppRoutes {
   static const String medicationList = '/medications';
   static const String addMedication = '/medications/add';
   static const String dailyCheck = '/medications/daily';
+  static const String medicationReminder = '/medications/reminder';
   static const String familyList = '/family';
   static const String familyForm = '/family/add';
   static const String healthCenters = '/health-centers';
+  static const String settings = '/settings';
 }
 
 class AppRouter {
@@ -59,6 +63,14 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const AddMedicationScreen());
       case AppRoutes.dailyCheck:
         return MaterialPageRoute(builder: (_) => const DailyCheckScreen());
+      case AppRoutes.medicationReminder:
+        final args = settings.arguments as Map<String, String>?;
+        return MaterialPageRoute(
+          builder: (_) => MedicationReminderScreen(
+            medicationName: args?['medicationName'] ?? 'دواء الأعصاب',
+            scheduledTime: args?['scheduledTime'] ?? '9 مساءً',
+          ),
+        );
       case AppRoutes.familyList:
         return MaterialPageRoute(builder: (_) => const FamilyListScreen());
       case AppRoutes.familyForm:
@@ -66,6 +78,8 @@ class AppRouter {
       case AppRoutes.healthCenters:
         return MaterialPageRoute(
             builder: (_) => const HealthCentersScreen());
+      case AppRoutes.settings:
+        return MaterialPageRoute(builder: (_) => const SettingsScreen());
       default:
         return MaterialPageRoute(builder: (_) => const SplashScreen());
     }

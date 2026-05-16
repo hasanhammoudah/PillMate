@@ -5,6 +5,7 @@ import '../../../../app/router/app_router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/widgets/app_primary_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/background_decoration.dart';
@@ -37,11 +38,9 @@ class _RegisterStepOneScreenState extends State<RegisterStepOneScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Keyboard height — 0 when closed, >0 when open.
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
 
     return Scaffold(
-      // Keep scaffold full-height; we handle keyboard inset via scroll padding.
       resizeToAvoidBottomInset: false,
       body: BackgroundDecoration(
         child: SafeArea(
@@ -53,21 +52,15 @@ class _RegisterStepOneScreenState extends State<RegisterStepOneScreen> {
                 SizedBox(height: 16.h),
                 RegisterHeader(
                   currentStep: 1,
-                  stepTitle: 'المعلومات الشخصية',
+                  stepTitle: context.tr('personalInfo'),
                   onArrowTap: () => Navigator.pop(context),
                 ),
                 SizedBox(height: 20.h),
-                // Stack lets the illustration sit fixed at the bottom while
-                // the form scrolls independently above it.
                 Expanded(
                   child: Stack(
                     children: [
-                      // ── Scrollable form ────────────────────────────
                       SingleChildScrollView(
                         physics: const BouncingScrollPhysics(),
-                        // When keyboard open: pad by keyboard height so the
-                        // button stays reachable above the keyboard.
-                        // When closed: pad by illustration height + buffer.
                         padding: EdgeInsets.only(
                           bottom: keyboardHeight > 0
                               ? keyboardHeight + 16.h
@@ -76,39 +69,37 @@ class _RegisterStepOneScreenState extends State<RegisterStepOneScreen> {
                         child: Form(
                           key: _formKey,
                           child: Column(
-                            // start = physical RIGHT in RTL → labels on right ✓
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              AppTextField(label: 'الاسم بالكامل'),
+                              AppTextField(label: context.tr('fullName')),
                               SizedBox(height: 14.h),
-                              // In RTL Row, first child renders on the physical RIGHT.
-                              // العمر (age) on right, الجنس (gender) on left.
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Expanded(
-                                    child: _AgeField(controller: _ageController),
+                                    child: _AgeField(
+                                        controller: _ageController),
                                   ),
                                   SizedBox(width: 14.w),
                                   Expanded(
                                     child: _GenderDropdown(
                                       value: _selectedGender,
-                                      onChanged: (v) =>
-                                          setState(() => _selectedGender = v),
+                                      onChanged: (v) => setState(
+                                          () => _selectedGender = v),
                                     ),
                                   ),
                                 ],
                               ),
                               SizedBox(height: 14.h),
                               AppTextField(
-                                label: 'رقم الهاتف',
+                                label: context.tr('phoneNumber'),
                                 keyboardType: TextInputType.phone,
                               ),
                               SizedBox(height: 14.h),
-                              AppTextField(label: 'العنوان'),
+                              AppTextField(label: context.tr('address')),
                               SizedBox(height: 28.h),
                               AppPrimaryButton(
-                                label: 'التالي',
+                                label: context.tr('next'),
                                 onPressed: _onNext,
                               ),
                               SizedBox(height: 8.h),
@@ -116,17 +107,12 @@ class _RegisterStepOneScreenState extends State<RegisterStepOneScreen> {
                           ),
                         ),
                       ),
-
-                      // ── Fixed illustration ─────────────────────────
-                      // Pinned to the bottom of the Expanded area — does NOT
-                      // move when the keyboard opens.
                       Positioned(
                         bottom: 0,
                         left: 0,
                         right: 0,
                         child: IgnorePointer(
-                          child: const RegisterIllustration(),
-                        ),
+                            child: const RegisterIllustration()),
                       ),
                     ],
                   ),
@@ -140,8 +126,6 @@ class _RegisterStepOneScreenState extends State<RegisterStepOneScreen> {
   }
 }
 
-/// Gender dropdown: ذكر / أنثى, validates a selection was made.
-/// Styled to match [AppTextField] visually (same border, radius, fill, padding).
 class _GenderDropdown extends StatelessWidget {
   final String? value;
   final ValueChanged<String?> onChanged;
@@ -150,145 +134,126 @@ class _GenderDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Wrap the entire widget in RTL so the label, selected value, hint text,
-    // and dropdown arrow all follow a natural Arabic right-to-left layout.
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start, // start = RIGHT in RTL
-        children: [
-          Text('الجنس', style: AppTextStyles.label),
-          SizedBox(height: 8.h),
-          DropdownButtonFormField<String>(
-            initialValue: value,
-            onChanged: onChanged,
-            isExpanded: true,
-            icon: const Icon(Icons.keyboard_arrow_down_rounded),
-            iconEnabledColor: AppColors.primary,
-            // Directionality moves the icon to the left automatically.
-            style: TextStyle(
-              fontSize: 16.sp,
-              color: AppColors.primary,
-            ),
-            hint: Text(
-              'اختر الجنس',
-              // textDirection inherited from Directionality wrapper above.
-              style: TextStyle(fontSize: 16.sp, color: AppColors.hintText),
-            ),
-            validator: (v) => v == null ? 'يرجى اختيار الجنس' : null,
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: AppColors.inputFill,
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppRadius.input),
-                borderSide:
-                    const BorderSide(color: AppColors.inputBorder, width: 2),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppRadius.input),
-                borderSide:
-                    const BorderSide(color: AppColors.inputBorder, width: 2),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppRadius.input),
-                borderSide: const BorderSide(color: Colors.red, width: 2),
-              ),
-              focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppRadius.input),
-                borderSide: const BorderSide(color: Colors.red, width: 2),
-              ),
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
-              errorStyle: TextStyle(
-                fontSize: 12.sp,
-                color: Colors.red,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            items: const [
-              DropdownMenuItem(value: 'ذكر', child: Text('ذكر')),
-              DropdownMenuItem(value: 'أنثى', child: Text('أنثى')),
-            ],
+    final emptyError = context.tr('pleaseSelectGender');
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(context.tr('gender'), style: AppTextStyles.label),
+        SizedBox(height: 8.h),
+        DropdownButtonFormField<String>(
+          initialValue: value,
+          onChanged: onChanged,
+          isExpanded: true,
+          icon: const Icon(Icons.keyboard_arrow_down_rounded),
+          iconEnabledColor: AppColors.primary,
+          style: TextStyle(fontSize: 16.sp, color: AppColors.primary),
+          hint: Text(
+            context.tr('chooseGender'),
+            style: TextStyle(fontSize: 16.sp, color: AppColors.hintText),
           ),
-        ],
-      ),
+          validator: (v) => v == null ? emptyError : null,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: AppColors.inputFill,
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppRadius.input),
+              borderSide:
+                  const BorderSide(color: AppColors.inputBorder, width: 2),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppRadius.input),
+              borderSide:
+                  const BorderSide(color: AppColors.inputBorder, width: 2),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppRadius.input),
+              borderSide: const BorderSide(color: Colors.red, width: 2),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppRadius.input),
+              borderSide: const BorderSide(color: Colors.red, width: 2),
+            ),
+            contentPadding:
+                EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
+            errorStyle: TextStyle(
+              fontSize: 12.sp,
+              color: Colors.red,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          items: [
+            DropdownMenuItem(
+                value: 'ذكر', child: Text(context.tr('male'))),
+            DropdownMenuItem(
+                value: 'أنثى', child: Text(context.tr('female'))),
+          ],
+        ),
+      ],
     );
   }
 }
 
-/// Age input field: numeric-only, max 3 digits, validates age ≥ 60.
-/// Styled to match [AppTextField] visually (same border, radius, fill, padding).
-/// Error text appears below the border (standard Flutter FormField behaviour).
 class _AgeField extends StatelessWidget {
   final TextEditingController controller;
 
   const _AgeField({required this.controller});
 
-  String? _validate(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'يرجى إدخال العمر';
-    }
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start, // start = RIGHT in RTL
-        children: [
-          Text('العمر', style: AppTextStyles.label),
-          SizedBox(height: 8.h),
-          TextFormField(
-            controller: controller,
-            keyboardType: TextInputType.number,
-            textAlign: TextAlign.right,
-            textAlignVertical: TextAlignVertical.center,
-            textDirection: TextDirection.rtl,
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-              LengthLimitingTextInputFormatter(3),
-            ],
-            style: TextStyle(fontSize: 16.sp, color: AppColors.primary),
-            validator: _validate,
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: AppColors.inputFill,
-              // Normal state — matches AppTextField border exactly
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppRadius.input),
-                borderSide:
-                    const BorderSide(color: AppColors.inputBorder, width: 2),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppRadius.input),
-                borderSide:
-                    const BorderSide(color: AppColors.inputBorder, width: 2),
-              ),
-              // Error state — border turns red to signal invalid input
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppRadius.input),
-                borderSide: const BorderSide(color: Colors.red, width: 2),
-              ),
-              focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppRadius.input),
-                borderSide: const BorderSide(color: Colors.red, width: 2),
-              ),
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
-              // Allow the Arabic error message to wrap so it is never clipped.
-              errorMaxLines: 3,
-              errorStyle: TextStyle(
-                fontSize: 13.sp,
-                color: Colors.red,
-                fontWeight: FontWeight.w500,
-                height: 1.4, // comfortable line-spacing for multi-line text
-              ),
+    final emptyError = context.tr('pleaseEnterAge');
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(context.tr('age'), style: AppTextStyles.label),
+        SizedBox(height: 8.h),
+        TextFormField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          textAlign:
+              context.isArabic ? TextAlign.right : TextAlign.left,
+          textDirection: context.appTextDirection,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(3),
+          ],
+          style: TextStyle(fontSize: 16.sp, color: AppColors.primary),
+          validator: (v) =>
+              (v == null || v.trim().isEmpty) ? emptyError : null,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: AppColors.inputFill,
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppRadius.input),
+              borderSide:
+                  const BorderSide(color: AppColors.inputBorder, width: 2),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppRadius.input),
+              borderSide:
+                  const BorderSide(color: AppColors.inputBorder, width: 2),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppRadius.input),
+              borderSide: const BorderSide(color: Colors.red, width: 2),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppRadius.input),
+              borderSide: const BorderSide(color: Colors.red, width: 2),
+            ),
+            contentPadding:
+                EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
+            errorMaxLines: 3,
+            errorStyle: TextStyle(
+              fontSize: 13.sp,
+              color: Colors.red,
+              fontWeight: FontWeight.w500,
+              height: 1.4,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

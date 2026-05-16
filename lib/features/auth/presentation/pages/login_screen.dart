@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../app/router/app_router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/services/auth_local_service.dart';
 import '../../../../core/widgets/app_primary_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
@@ -57,36 +58,36 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     SizedBox(height: 16.h),
                     AuthHeader(
-                      onArrowTap: () =>
-                          Navigator.pushNamed(context, AppRoutes.registerStep1),
+                      onArrowTap: () => Navigator.pushNamed(
+                          context, AppRoutes.registerStep1),
                     ),
                     SizedBox(height: 36.h),
                     AppTextField(
-                      label: 'اسم المستخدم',
+                      label: context.tr('username'),
                       controller: _usernameController,
                     ),
                     SizedBox(height: 18.h),
-                    const PasswordField(label: 'الرمز السري'),
+                    PasswordField(label: context.tr('password')),
                     SizedBox(height: 28.h),
                     AppPrimaryButton(
-                      label: 'دخول',
+                      label: context.tr('login'),
                       onPressed: _onLogin,
                     ),
                     SizedBox(height: 16.h),
                     Align(
                       alignment: Alignment.center,
                       child: GestureDetector(
-                        onTap: () =>
-                            Navigator.pushNamed(context, AppRoutes.registerStep1),
+                        onTap: () => Navigator.pushNamed(
+                            context, AppRoutes.registerStep1),
                         child: RichText(
-                          textDirection: TextDirection.rtl,
+                          textDirection: context.appTextDirection,
                           text: TextSpan(
                             style: AppTextStyles.bottomLink,
-                            children: const [
-                              TextSpan(text: 'هل لديك حساب؟ '),
+                            children: [
+                              TextSpan(text: context.tr('noAccount')),
                               TextSpan(
-                                text: 'تسجيل الدخول',
-                                style: TextStyle(
+                                text: context.tr('registerLink'),
+                                style: const TextStyle(
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.accent,
                                 ),
@@ -99,7 +100,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
               ),
-
               Positioned(
                 bottom: 0,
                 left: 0,

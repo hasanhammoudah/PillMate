@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../app/router/app_router.dart';
-import '../../../../app/theme/app_assets.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../domain/models/medication_model.dart';
 import 'medication_list_screen.dart';
 
@@ -61,9 +60,8 @@ class _DailyCheckScreenState extends State<DailyCheckScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'تم تسجيل تناول ${_medications[index].name}',
-          textAlign: TextAlign.right,
-          textDirection: TextDirection.rtl,
+          context.tr('recordedTaking',
+              args: {'name': _medications[index].name}),
         ),
         backgroundColor: AppColors.green,
         duration: const Duration(seconds: 2),
@@ -76,74 +74,67 @@ class _DailyCheckScreenState extends State<DailyCheckScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: AppColors.cardBg,
-        body: SafeArea(
-          child: Column(
-            children: [
-              // ── Top bar ───────────────────────────────────────────
-              _DailyTopBar(),
-
-              // ── Scrollable body ───────────────────────────────────
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: 20.w, vertical: 20.h),
-                  child: Column(
-                    children: [
-                      // Logo – centered
-                      Center(
-                        child:
-                            SvgPicture.asset(AppAssets.logo, width: 130.w),
+    return Scaffold(
+      backgroundColor: AppColors.cardBg,
+      body: SafeArea(
+        child: Column(
+          children: [
+            _DailyTopBar(),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(
+                    horizontal: 20.w, vertical: 20.h),
+                child: Column(
+                  children: [
+                    Center(
+                      child: Image.asset(
+                        'assets/images/Untitled-3-01.png',
+                        width: 130.w,
+                        fit: BoxFit.contain,
                       ),
-                      SizedBox(height: 20.h),
-
-                      // Medications container
-                      Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.white,
-                          borderRadius: BorderRadius.circular(20.r),
-                          border: Border.all(
-                            color: AppColors.borderBlue
-                                .withValues(alpha: 0.3),
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.primaryDark
-                                  .withValues(alpha: 0.07),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
+                    ),
+                    SizedBox(height: 20.h),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(20.r),
+                        border: Border.all(
+                          color: AppColors.borderBlue
+                              .withValues(alpha: 0.3),
                         ),
-                        child: ListView.separated(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          padding: EdgeInsets.symmetric(
-                              vertical: 8.h, horizontal: 12.w),
-                          itemCount: _medications.length,
-                          separatorBuilder: (_, _) => Divider(
-                            height: 1,
-                            color: AppColors.borderBlue
-                                .withValues(alpha: 0.15),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primaryDark
+                                .withValues(alpha: 0.07),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
                           ),
-                          itemBuilder: (_, index) => _DailyMedicationTile(
-                            medication: _medications[index],
-                            onTaken: () => _markTaken(index),
-                          ),
+                        ],
+                      ),
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: EdgeInsets.symmetric(
+                            vertical: 8.h, horizontal: 12.w),
+                        itemCount: _medications.length,
+                        separatorBuilder: (_, _) => Divider(
+                          height: 1,
+                          color: AppColors.borderBlue
+                              .withValues(alpha: 0.15),
+                        ),
+                        itemBuilder: (_, index) =>
+                            _DailyMedicationTile(
+                          medication: _medications[index],
+                          onTaken: () => _markTaken(index),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-
-              // ── Bottom navigation ─────────────────────────────────
-              const _BottomNav(),
-            ],
-          ),
+            ),
+            const _BottomNav(),
+          ],
         ),
       ),
     );
@@ -151,7 +142,6 @@ class _DailyCheckScreenState extends State<DailyCheckScreen> {
 }
 
 // ── Top bar ───────────────────────────────────────────────────────────────────
-// RTL: MainAxisAlignment.start → logout button visually on the RIGHT.
 
 class _DailyTopBar extends StatelessWidget {
   @override
@@ -161,21 +151,40 @@ class _DailyTopBar extends StatelessWidget {
       color: AppColors.primaryDark,
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
       child: Row(
-        // In RTL, start = RIGHT side — logout button anchored to the right.
-        mainAxisAlignment: MainAxisAlignment.start,
         children: [
+          // Back button
+          GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              width: 36.w,
+              height: 36.w,
+              decoration: BoxDecoration(
+                color: AppColors.white.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                context.isArabic
+                    ? Icons.arrow_forward_ios
+                    : Icons.arrow_back_ios_new,
+                color: AppColors.white,
+                size: 16.sp,
+              ),
+            ),
+          ),
+          const Spacer(),
+          // Logout button
           GestureDetector(
             onTap: () => Navigator.pushNamedAndRemoveUntil(
                 context, AppRoutes.login, (_) => false),
             child: Container(
-              padding:
-                  EdgeInsets.symmetric(horizontal: 16.w, vertical: 7.h),
+              padding: EdgeInsets.symmetric(
+                  horizontal: 16.w, vertical: 7.h),
               decoration: BoxDecoration(
                 color: AppColors.red,
                 borderRadius: BorderRadius.circular(20.r),
               ),
               child: Text(
-                'تسجيل الخروج',
+                context.tr('logout'),
                 style: TextStyle(
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w700,
@@ -190,8 +199,7 @@ class _DailyTopBar extends StatelessWidget {
   }
 }
 
-// ── Individual daily medication tile ─────────────────────────────────────────
-// RTL layout: [medication name + times → RIGHT] [شربت الدواء button → LEFT]
+// ── Medication tile ───────────────────────────────────────────────────────────
 
 class _DailyMedicationTile extends StatelessWidget {
   final Medication medication;
@@ -208,23 +216,20 @@ class _DailyMedicationTile extends StatelessWidget {
 
     return Container(
       margin: EdgeInsets.symmetric(vertical: 8.h),
-      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+      padding:
+          EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
       decoration: BoxDecoration(
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(14.r),
       ),
       child: Row(
-        // RTL Row: first child → RIGHT, last child → LEFT.
         children: [
-          // RIGHT side: medication name + scheduled times
           Expanded(
             child: Column(
-              // CrossAxisAlignment.start in RTL = anchored to the RIGHT
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   medication.name,
-                  textAlign: TextAlign.right,
                   style: TextStyle(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w700,
@@ -234,7 +239,6 @@ class _DailyMedicationTile extends StatelessWidget {
                 SizedBox(height: 4.h),
                 Text(
                   timesLabel,
-                  textAlign: TextAlign.right,
                   style: TextStyle(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w500,
@@ -244,10 +248,7 @@ class _DailyMedicationTile extends StatelessWidget {
               ],
             ),
           ),
-
           SizedBox(width: 12.w),
-
-          // LEFT side: action button
           ElevatedButton(
             onPressed: medication.takenToday ? null : onTaken,
             style: ElevatedButton.styleFrom(
@@ -255,16 +256,19 @@ class _DailyMedicationTile extends StatelessWidget {
                   ? Colors.grey.shade400
                   : AppColors.green,
               disabledBackgroundColor: Colors.grey.shade400,
-              padding:
-                  EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+              padding: EdgeInsets.symmetric(
+                  horizontal: 14.w, vertical: 10.h),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20.r),
               ),
               elevation: medication.takenToday ? 0 : 2,
-              shadowColor: AppColors.green.withValues(alpha: 0.35),
+              shadowColor:
+                  AppColors.green.withValues(alpha: 0.35),
             ),
             child: Text(
-              medication.takenToday ? 'تم ✓' : 'شربت الدواء',
+              medication.takenToday
+                  ? context.tr('doneTaken')
+                  : context.tr('takenMedication'),
               style: TextStyle(
                 fontSize: 13.sp,
                 fontWeight: FontWeight.w700,
@@ -278,8 +282,7 @@ class _DailyMedicationTile extends StatelessWidget {
   }
 }
 
-// ── Bottom navigation bar ─────────────────────────────────────────────────────
-// RTL order: ادويتي (RIGHT / first child) — المراكز الصحية (LEFT / last child)
+// ── Bottom navigation ─────────────────────────────────────────────────────────
 
 class _BottomNav extends StatelessWidget {
   const _BottomNav();
@@ -287,7 +290,8 @@ class _BottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
+      padding:
+          EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
       decoration: BoxDecoration(
         color: AppColors.white,
         boxShadow: [
@@ -300,26 +304,21 @@ class _BottomNav extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // RTL first child → visually RIGHT: ادويتي (primary action)
           Expanded(
             child: _BottomNavCard(
-              label: 'ادويتي',
+              label: context.tr('myMedications'),
               icon: Icons.medication_outlined,
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const MedicationListScreen(),
-                ),
+                    builder: (_) => const MedicationListScreen()),
               ),
             ),
           ),
-
           SizedBox(width: 16.w),
-
-          // RTL last child → visually LEFT: المراكز الصحية
           Expanded(
             child: _BottomNavCard(
-              label: 'المراكز\nالصحية',
+              label: context.tr('healthCentersTitle'),
               icon: Icons.local_hospital_outlined,
               onTap: () {},
             ),

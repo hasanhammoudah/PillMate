@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../app/router/app_router.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/services/auth_local_service.dart';
 import '../../../../core/widgets/app_primary_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
@@ -29,7 +30,7 @@ class _RegisterStepThreeScreenState extends State<RegisterStepThreeScreen> {
   Future<void> _onFinish() async {
     final name = _usernameController.text.trim();
     await AuthLocalService().setRegistered(
-      userName: name.isEmpty ? 'المستخدم' : name,
+      userName: name.isEmpty ? context.tr('defaultUser') : name,
     );
     if (!mounted) return;
     Navigator.pushNamed(context, AppRoutes.welcomeStart);
@@ -51,7 +52,7 @@ class _RegisterStepThreeScreenState extends State<RegisterStepThreeScreen> {
                 SizedBox(height: 16.h),
                 RegisterHeader(
                   currentStep: 3,
-                  stepTitle: 'معلومات الحساب',
+                  stepTitle: context.tr('accountInfo'),
                   onArrowTap: () => Navigator.pop(context),
                 ),
                 SizedBox(height: 20.h),
@@ -69,17 +70,18 @@ class _RegisterStepThreeScreenState extends State<RegisterStepThreeScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             AppTextField(
-                              label: 'اسم المستخدم',
+                              label: context.tr('username'),
                               controller: _usernameController,
                             ),
                             SizedBox(height: 14.h),
-                            const PasswordField(label: 'الرمز السري'),
+                            PasswordField(label: context.tr('password')),
                             SizedBox(height: 14.h),
-                            const PasswordField(label: 'تأكيد الرمز السري'),
+                            PasswordField(
+                                label: context.tr('confirmPassword')),
                             SizedBox(height: 28.h),
                             AppPrimaryButton(
-                              label: 'التالي',
-                              onPressed: () => _onFinish(),
+                              label: context.tr('next'),
+                              onPressed: _onFinish,
                             ),
                             SizedBox(height: 8.h),
                           ],
@@ -90,8 +92,7 @@ class _RegisterStepThreeScreenState extends State<RegisterStepThreeScreen> {
                         left: 0,
                         right: 0,
                         child: IgnorePointer(
-                          child: const RegisterIllustration(),
-                        ),
+                            child: const RegisterIllustration()),
                       ),
                     ],
                   ),

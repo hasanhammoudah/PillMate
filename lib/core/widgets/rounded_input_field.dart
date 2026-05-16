@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../app/theme/app_colors.dart';
+import '../localization/app_localizations.dart';
 
 /// Full-width pill-shaped text input field used across family and
-/// health-center forms.  RTL-aware: hint and text are right-aligned.
+/// health-center forms. Direction-aware via localization context.
 class RoundedInputField extends StatelessWidget {
   final TextEditingController controller;
   final String hint;
@@ -20,19 +21,22 @@ class RoundedInputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isArabic = context.isArabic;
+    final textDir = context.appTextDirection;
+
     return TextField(
       controller: controller,
       keyboardType: keyboardType,
       obscureText: obscureText,
-      textAlign: TextAlign.right,
-      textDirection: TextDirection.rtl,
+      textAlign: isArabic ? TextAlign.right : TextAlign.left,
+      textDirection: textDir,
       style: TextStyle(
         fontSize: 15.sp,
         color: AppColors.primaryDark,
       ),
       decoration: InputDecoration(
         hintText: hint,
-        hintTextDirection: TextDirection.rtl,
+        hintTextDirection: textDir,
         hintStyle: TextStyle(fontSize: 14.sp, color: AppColors.hintText),
         contentPadding:
             EdgeInsets.symmetric(horizontal: 24.w, vertical: 18.h),

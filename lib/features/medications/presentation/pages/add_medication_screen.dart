@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../app/theme/app_assets.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../domain/models/medication_model.dart';
 
 class AddMedicationScreen extends StatefulWidget {
@@ -18,8 +19,6 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
   final _startDateController = TextEditingController();
   final _endDateController = TextEditingController();
   final _quantityController = TextEditingController();
-
-  // Selected dose times — displayed as chips
   final List<TimeOfDay> _selectedTimes = [];
 
   @override
@@ -32,9 +31,8 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
     super.dispose();
   }
 
-  // ── Date picker ─────────────────────────────────────────────────
-
   Future<void> _pickDate(TextEditingController ctrl) async {
+    final isArabic = context.isArabic;
     final picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -49,10 +47,15 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
             onSurface: AppColors.primaryDark,
           ),
           textButtonTheme: TextButtonThemeData(
-            style: TextButton.styleFrom(foregroundColor: AppColors.primaryDark),
+            style: TextButton.styleFrom(
+                foregroundColor: AppColors.primaryDark),
           ),
         ),
-        child: Directionality(textDirection: TextDirection.rtl, child: child!),
+        child: Directionality(
+          textDirection:
+              isArabic ? TextDirection.rtl : TextDirection.ltr,
+          child: child!,
+        ),
       ),
     );
     if (picked != null && mounted) {
@@ -62,9 +65,8 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
     }
   }
 
-  // ── Time picker ─────────────────────────────────────────────────
-
   Future<void> _addTime() async {
+    final isArabic = context.isArabic;
     final picked = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
@@ -77,10 +79,15 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
             onSurface: AppColors.primaryDark,
           ),
           textButtonTheme: TextButtonThemeData(
-            style: TextButton.styleFrom(foregroundColor: AppColors.primaryDark),
+            style: TextButton.styleFrom(
+                foregroundColor: AppColors.primaryDark),
           ),
         ),
-        child: Directionality(textDirection: TextDirection.rtl, child: child!),
+        child: Directionality(
+          textDirection:
+              isArabic ? TextDirection.rtl : TextDirection.ltr,
+          child: child!,
+        ),
       ),
     );
     if (picked != null && mounted) {
@@ -88,38 +95,28 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
     }
   }
 
-  void _removeTime(int index) => setState(() => _selectedTimes.removeAt(index));
-
-  // ── Format TimeOfDay as HH:mm ────────────────────────────────────
+  void _removeTime(int index) =>
+      setState(() => _selectedTimes.removeAt(index));
 
   String _formatTime(TimeOfDay t) =>
       '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
-
-  // ── Save ─────────────────────────────────────────────────────────
 
   void _save() {
     if (_nameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text(
-            'يرجى إدخال اسم الدواء',
-            textAlign: TextAlign.right,
-            textDirection: TextDirection.rtl,
-          ),
+          content: Text(context.tr('pleaseEnterMedName')),
           backgroundColor: AppColors.red,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.r),
-          ),
+              borderRadius: BorderRadius.circular(12.r)),
         ),
       );
       return;
     }
-
     final times = _selectedTimes.isEmpty
         ? ['08:00']
         : _selectedTimes.map(_formatTime).toList();
-
     Navigator.pop(
       context,
       Medication(
@@ -133,12 +130,11 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
         endDate: _endDateController.text.trim().isEmpty
             ? '--/--/----'
             : _endDateController.text.trim(),
-        remainingQuantity: int.tryParse(_quantityController.text.trim()) ?? 0,
+        remainingQuantity:
+            int.tryParse(_quantityController.text.trim()) ?? 0,
       ),
     );
   }
-
-  // ── Build ─────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -150,71 +146,65 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
             _Header(),
             Expanded(
               child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+                padding: EdgeInsets.symmetric(
+                    horizontal: 20.w, vertical: 16.h),
                 child: Column(
-                  // CrossAxisAlignment.start = RIGHT in RTL
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // اسم الدواء
                     _FormField(
-                      label: 'اسم الدواء',
+                      label: context.tr('medicationName'),
                       controller: _nameController,
-                      hint: 'أدخل اسم الدواء',
+                      hint: context.tr('enterMedicationName'),
                     ),
                     SizedBox(height: 18.h),
-
-                    // الجرعة
                     _FormField(
-                      label: 'الجرعة',
+                      label: context.tr('dosage'),
                       controller: _dosageController,
-                      hint: 'مثال: 500 ملغ',
+                      hint: context.tr('dosageExample'),
                     ),
                     SizedBox(height: 18.h),
-
-                    // مواعيد الجرعات — time-picker section
                     _TimePickerSection(
+                      sectionLabel: context.tr('doseTimes'),
+                      addLabel: context.tr('addTime'),
+                      emptyText: context.tr('noTimesAdded'),
                       selectedTimes: _selectedTimes,
                       onAdd: _addTime,
                       onRemove: _removeTime,
                       formatTime: _formatTime,
                     ),
                     SizedBox(height: 18.h),
-
-                    // Dates row
-                    // In RTL: children[0] = visually RIGHT  → تاريخ البداية
-                    //          children[1] = visually LEFT   → تاريخ النهاية
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
                           child: _DateField(
-                            label: 'تاريخ البداية',
+                            label: context.tr('startDate'),
                             controller: _startDateController,
-                            onTap: () => _pickDate(_startDateController),
+                            hint: context.tr('dateFormat'),
+                            onTap: () =>
+                                _pickDate(_startDateController),
                           ),
                         ),
                         SizedBox(width: 12.w),
                         Expanded(
                           child: _DateField(
-                            label: 'تاريخ النهاية',
+                            label: context.tr('endDate'),
                             controller: _endDateController,
-                            onTap: () => _pickDate(_endDateController),
+                            hint: context.tr('dateFormat'),
+                            onTap: () =>
+                                _pickDate(_endDateController),
                           ),
                         ),
                       ],
                     ),
                     SizedBox(height: 18.h),
-
-                    // كم حبة من الدواء متوفرة؟
                     _FormField(
-                      label: 'كم حبة من الدواء متوفرة؟',
+                      label: context.tr('pillsAvailable'),
                       controller: _quantityController,
-                      hint: 'مثال: 30',
+                      hint: context.tr('pillsExample'),
                       keyboardType: TextInputType.number,
                     ),
                     SizedBox(height: 36.h),
-
-                    // حفظ الدواء
                     SizedBox(
                       width: double.infinity,
                       height: 56.h,
@@ -226,12 +216,11 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                             borderRadius: BorderRadius.circular(28.r),
                           ),
                           elevation: 3,
-                          shadowColor: AppColors.primaryDark.withValues(
-                            alpha: 0.35,
-                          ),
+                          shadowColor: AppColors.primaryDark
+                              .withValues(alpha: 0.35),
                         ),
                         child: Text(
-                          'حفظ الدواء',
+                          context.tr('saveMedication'),
                           style: TextStyle(
                             fontSize: 18.sp,
                             fontWeight: FontWeight.w700,
@@ -253,9 +242,6 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
 }
 
 // ── Header ────────────────────────────────────────────────────────────────────
-// RTL: children[0] = visually RIGHT = back arrow
-//       Spacer
-//       children[-1] = visually LEFT = logo
 
 class _Header extends StatelessWidget {
   @override
@@ -264,7 +250,6 @@ class _Header extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       child: Row(
         children: [
-          // RIGHT side (RTL start): back arrow
           GestureDetector(
             onTap: () => Navigator.pop(context),
             child: Container(
@@ -281,16 +266,16 @@ class _Header extends StatelessWidget {
                   ),
                 ],
               ),
-              // arrow_forward_ios points RIGHT — correct RTL back direction
               child: Icon(
-                Icons.arrow_forward_ios,
+                context.isArabic
+                    ? Icons.arrow_forward_ios
+                    : Icons.arrow_back_ios_new,
                 color: AppColors.white,
                 size: 18.sp,
               ),
             ),
           ),
           const Spacer(),
-          // LEFT side (RTL end): logo
           SvgPicture.asset(AppAssets.logo, width: 52.w),
         ],
       ),
@@ -315,13 +300,12 @@ class _FormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isArabic = context.isArabic;
     return Column(
-      // CrossAxisAlignment.start = RIGHT in RTL → labels anchored to the right
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          textDirection: TextDirection.rtl,
           style: TextStyle(
             fontSize: 15.sp,
             fontWeight: FontWeight.w700,
@@ -332,10 +316,10 @@ class _FormField extends StatelessWidget {
         TextField(
           controller: controller,
           keyboardType: keyboardType,
-          textAlign: TextAlign.right,
-          textDirection: TextDirection.rtl,
+          textAlign: isArabic ? TextAlign.right : TextAlign.left,
+          textDirection: context.appTextDirection,
           style: TextStyle(fontSize: 15.sp, color: AppColors.primaryDark),
-          decoration: _inputDecoration(hint),
+          decoration: _inputDecoration(hint, isArabic: isArabic),
         ),
       ],
     );
@@ -347,23 +331,24 @@ class _FormField extends StatelessWidget {
 class _DateField extends StatelessWidget {
   final String label;
   final TextEditingController controller;
+  final String hint;
   final VoidCallback onTap;
 
   const _DateField({
     required this.label,
     required this.controller,
+    required this.hint,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isArabic = context.isArabic;
     return Column(
-      // CrossAxisAlignment.start = RIGHT in RTL
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          textDirection: TextDirection.rtl,
           style: TextStyle(
             fontSize: 14.sp,
             fontWeight: FontWeight.w700,
@@ -376,14 +361,13 @@ class _DateField extends StatelessWidget {
           child: AbsorbPointer(
             child: TextField(
               controller: controller,
-              textAlign: TextAlign.right,
+              textAlign: isArabic ? TextAlign.right : TextAlign.left,
               readOnly: true,
-              style: TextStyle(fontSize: 13.sp, color: AppColors.primaryDark),
-              decoration: _inputDecoration('DD/MM/YYYY').copyWith(
-                hintStyle: TextStyle(
-                  fontSize: 12.sp,
-                  color: AppColors.hintText,
-                ),
+              style:
+                  TextStyle(fontSize: 13.sp, color: AppColors.primaryDark),
+              decoration: _inputDecoration(hint, isArabic: isArabic).copyWith(
+                hintStyle:
+                    TextStyle(fontSize: 12.sp, color: AppColors.hintText),
                 suffixIcon: Icon(
                   Icons.calendar_today_outlined,
                   size: 18.sp,
@@ -401,12 +385,18 @@ class _DateField extends StatelessWidget {
 // ── Time picker section ───────────────────────────────────────────────────────
 
 class _TimePickerSection extends StatelessWidget {
+  final String sectionLabel;
+  final String addLabel;
+  final String emptyText;
   final List<TimeOfDay> selectedTimes;
   final VoidCallback onAdd;
   final void Function(int) onRemove;
   final String Function(TimeOfDay) formatTime;
 
   const _TimePickerSection({
+    required this.sectionLabel,
+    required this.addLabel,
+    required this.emptyText,
     required this.selectedTimes,
     required this.onAdd,
     required this.onRemove,
@@ -418,14 +408,13 @@ class _TimePickerSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Row: label (right) + add button (left)
         Row(
           children: [
-            // LEFT (RTL end): "+ اضافة موعد" button
             GestureDetector(
               onTap: onAdd,
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
+                padding: EdgeInsets.symmetric(
+                    horizontal: 14.w, vertical: 6.h),
                 decoration: BoxDecoration(
                   color: AppColors.accentCyan,
                   borderRadius: BorderRadius.circular(20.r),
@@ -443,7 +432,7 @@ class _TimePickerSection extends StatelessWidget {
                     Icon(Icons.add, color: AppColors.white, size: 16.sp),
                     SizedBox(width: 4.w),
                     Text(
-                      'اضافة موعد',
+                      addLabel,
                       style: TextStyle(
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w700,
@@ -455,10 +444,8 @@ class _TimePickerSection extends StatelessWidget {
               ),
             ),
             const Spacer(),
-            // RIGHT (RTL start): label
             Text(
-              'مواعيد الجرعات',
-              textDirection: TextDirection.rtl,
+              sectionLabel,
               style: TextStyle(
                 fontSize: 15.sp,
                 fontWeight: FontWeight.w700,
@@ -468,12 +455,11 @@ class _TimePickerSection extends StatelessWidget {
           ],
         ),
         SizedBox(height: 10.h),
-
-        // Container that holds either chips or the hint
         Container(
           width: double.infinity,
           constraints: BoxConstraints(minHeight: 52.h),
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+          padding:
+              EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
           decoration: BoxDecoration(
             color: AppColors.white,
             borderRadius: BorderRadius.circular(28.r),
@@ -484,20 +470,21 @@ class _TimePickerSection extends StatelessWidget {
           ),
           child: selectedTimes.isEmpty
               ? Align(
-                  alignment: Alignment.centerRight,
+                  alignment: context.isArabic
+                      ? Alignment.centerRight
+                      : Alignment.centerLeft,
                   child: Text(
-                    'لم يتم إضافة مواعيد بعد',
-                    textDirection: TextDirection.rtl,
+                    emptyText,
                     style: TextStyle(
-                      fontSize: 13.sp,
-                      color: AppColors.hintText,
-                    ),
+                        fontSize: 13.sp, color: AppColors.hintText),
                   ),
                 )
               : Wrap(
                   spacing: 8.w,
                   runSpacing: 6.h,
-                  alignment: WrapAlignment.end,
+                  alignment: context.isArabic
+                      ? WrapAlignment.end
+                      : WrapAlignment.start,
                   children: List.generate(
                     selectedTimes.length,
                     (i) => _TimeChip(
@@ -512,7 +499,7 @@ class _TimePickerSection extends StatelessWidget {
   }
 }
 
-// ── Single time chip ──────────────────────────────────────────────────────────
+// ── Time chip ─────────────────────────────────────────────────────────────────
 
 class _TimeChip extends StatelessWidget {
   final String label;
@@ -532,7 +519,6 @@ class _TimeChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Delete icon (visually LEFT in RTL = end of chip)
           GestureDetector(
             onTap: onDelete,
             child: Icon(Icons.close, size: 14.sp, color: AppColors.red),
@@ -552,24 +538,28 @@ class _TimeChip extends StatelessWidget {
   }
 }
 
-// ── Shared InputDecoration helper ─────────────────────────────────────────────
+// ── InputDecoration helper ────────────────────────────────────────────────────
 
-InputDecoration _inputDecoration(String hint) => InputDecoration(
-  hintText: hint,
-  hintTextDirection: TextDirection.rtl,
-  hintStyle: TextStyle(fontSize: 13.sp, color: AppColors.hintText),
-  contentPadding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 14.h),
-  enabledBorder: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(28.r),
-    borderSide: BorderSide(
-      color: AppColors.borderBlue.withValues(alpha: 0.5),
-      width: 1.5,
-    ),
-  ),
-  focusedBorder: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(28.r),
-    borderSide: BorderSide(color: AppColors.primaryDark, width: 2),
-  ),
-  filled: true,
-  fillColor: AppColors.white,
-);
+InputDecoration _inputDecoration(String hint, {bool isArabic = true}) =>
+    InputDecoration(
+      hintText: hint,
+      hintTextDirection:
+          isArabic ? TextDirection.rtl : TextDirection.ltr,
+      hintStyle: TextStyle(fontSize: 13.sp, color: AppColors.hintText),
+      contentPadding:
+          EdgeInsets.symmetric(horizontal: 18.w, vertical: 14.h),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(28.r),
+        borderSide: BorderSide(
+          color: AppColors.borderBlue.withValues(alpha: 0.5),
+          width: 1.5,
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(28.r),
+        borderSide:
+            BorderSide(color: AppColors.primaryDark, width: 2),
+      ),
+      filled: true,
+      fillColor: AppColors.white,
+    );

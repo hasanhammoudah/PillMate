@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../app/router/app_router.dart';
+import '../../../../app/theme/app_colors.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/widgets/app_logo.dart';
 import '../../../../core/widgets/background_decoration.dart';
 import '../widgets/elderly_couple_widget.dart';
@@ -23,17 +25,17 @@ class IntroScreen extends StatelessWidget {
                 const ElderlyCoupleWidget(),
                 SizedBox(height: 16.h),
                 GestureDetector(
-                  onTap: () =>
-                      Navigator.pushReplacementNamed(context, AppRoutes.login),
+                  onTap: () => Navigator.pushReplacementNamed(
+                      context, AppRoutes.login),
                   child: Container(
                     padding: EdgeInsets.symmetric(
                         horizontal: 40.w, vertical: 14.h),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1A2B5F),
+                      color: AppColors.primary,
                       borderRadius: BorderRadius.circular(30),
                     ),
                     child: Text(
-                      'ابدأ الآن',
+                      context.tr('startNow'),
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 20.sp,

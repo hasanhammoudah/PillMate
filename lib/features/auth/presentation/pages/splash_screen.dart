@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../app/router/app_router.dart';
 import '../../../../app/theme/app_assets.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/services/auth_local_service.dart';
 import '../../../../core/widgets/app_logo.dart';
 import '../../../../core/widgets/background_decoration.dart';
@@ -18,26 +19,21 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   bool _navigated = false;
-
   late final AnimationController _rotationController;
 
   @override
   void initState() {
     super.initState();
-
     _rotationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2500),
     );
-
     _rotationController.addStatusListener(_onAnimationStatus);
     _rotationController.forward();
   }
 
   void _onAnimationStatus(AnimationStatus status) {
-    if (status == AnimationStatus.completed) {
-      _checkAndNavigate();
-    }
+    if (status == AnimationStatus.completed) _checkAndNavigate();
   }
 
   @override
@@ -68,10 +64,9 @@ class _SplashScreenState extends State<SplashScreen>
               const AppLogo(),
               SizedBox(height: 20.h),
               Text(
-                'تنظيم دوائك... بداية راحتك',
+                context.tr('appTagline'),
                 style: AppTextStyles.tagline,
                 textAlign: TextAlign.center,
-                textDirection: TextDirection.rtl,
               ),
               Expanded(
                 child: Align(
