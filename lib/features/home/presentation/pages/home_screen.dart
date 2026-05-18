@@ -6,6 +6,7 @@ import '../../../../app/theme/app_assets.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/services/auth_local_service.dart';
+import '../../../../core/services/notification_service.dart';
 import '../../../family/presentation/pages/family_list_screen.dart';
 import '../../../health_centers/presentation/pages/health_centers_screen.dart';
 import '../../../medications/presentation/pages/daily_check_screen.dart';
@@ -26,6 +27,12 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _loadAuthState();
+    // Request notification + exact-alarm permissions once the home screen
+    // is visible. The system dialog only appears on first launch;
+    // subsequent opens are silent.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      NotificationService.instance.requestPermissions();
+    });
   }
 
   Future<void> _loadAuthState() async {
@@ -66,12 +73,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   children: [
                     Center(
-                      child:
-                          Image.asset(
-                            'assets/images/Untitled-3-01.png',
-                            width: 150.w,
-                            fit: BoxFit.contain,
-                          ),
+                      child: Image.asset(
+                        'assets/images/Untitled-3-01.png',
+                        width: 150.w,
+                        fit: BoxFit.contain,
+                      ),
                     ),
                     SizedBox(height: 28.h),
                     _OutlinedMenuButton(
@@ -166,7 +172,6 @@ class _TopBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // User name (RTL: right / LTR: left)
           Flexible(
             child: Text(
               userName,
@@ -181,7 +186,6 @@ class _TopBar extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Settings icon
               GestureDetector(
                 onTap: () => Navigator.pushNamed(context, AppRoutes.settings),
                 child: Container(
@@ -191,14 +195,10 @@ class _TopBar extends StatelessWidget {
                     color: AppColors.white.withValues(alpha: 0.12),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    Icons.settings_outlined,
-                    color: AppColors.white,
-                    size: 20.sp,
-                  ),
+                  child: Icon(Icons.settings_outlined,
+                      color: AppColors.white, size: 20.sp),
                 ),
               ),
-              // Auth button
               GestureDetector(
                 onTap: isLoggedIn
                     ? onLogout

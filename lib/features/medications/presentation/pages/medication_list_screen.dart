@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../app/theme/app_assets.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/services/reminder_service.dart';
 import '../../data/services/medication_local_service.dart';
 import '../../domain/models/medication_model.dart';
 import '../widgets/medication_card.dart';
@@ -38,11 +39,38 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
   }
 
   Future<void> _addMedication(Medication med) async {
+    // ── Debug trace ─────────────────────────────────────────────────────────
+    debugPrint('');
+    debugPrint('==============================');
+    debugPrint('MEDICINE SAVED');
+    debugPrint('  Name    : ${med.name}');
+    debugPrint('  Dosage  : ${med.dosage}');
+    debugPrint('  Times   : ${med.scheduleTimes}');
+    debugPrint('  ID      : ${med.id}');
+    debugPrint('  Now     : ${DateTime.now()}');
+    debugPrint('==============================');
+    debugPrint('');
+
     await _service.add(med);
+    debugPrint('[MedList] ✅ Saved to storage');
+
+    debugPrint('[MedList] CALLING SCHEDULE REMINDER...');
+    try {
+      await ReminderService.instance.scheduleForMedication(med);
+      debugPrint('[MedList] ✅ scheduleForMedication complete');
+    } catch (e, st) {
+      debugPrint('[MedList] ❌ scheduleForMedication FAILED: $e');
+      debugPrint('$st');
+    }
+
     setState(() => _medications.add(med));
   }
 
   Future<void> _deleteMedication(String id) async {
+    final idx = _medications.indexWhere((m) => m.id == id);
+    if (idx != -1) {
+      await ReminderService.instance.cancelForMedication(_medications[idx]);
+    }
     await _service.delete(id);
     setState(() => _medications.removeWhere((m) => m.id == id));
   }

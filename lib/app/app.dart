@@ -6,6 +6,11 @@ import 'theme/app_colors.dart';
 import '../core/localization/app_localizations.dart';
 import '../core/localization/locale_provider.dart';
 
+/// Global navigator key — lets [NotificationService] navigate from outside
+/// the widget tree (e.g. when the user taps a notification while the app
+/// is in the background or just launched from a cold start).
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 class PillMateApp extends StatelessWidget {
   const PillMateApp({super.key});
 
@@ -21,6 +26,7 @@ class PillMateApp extends StatelessWidget {
         return MaterialApp(
           title: 'PillMate',
           debugShowCheckedModeBanner: false,
+          navigatorKey: navigatorKey,
           locale: provider.locale,
           localizationsDelegates: const [
             AppLocalizations.delegate,
